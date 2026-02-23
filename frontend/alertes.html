@@ -6,219 +6,932 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Alertes - Ferme Mokpokpo</title>
     <link rel="icon" type="image/png" href="assets/img/favicon.png">
-
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/stock.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        .alert-form-card {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid #e74c3c;
+        .alerts-container {
+            padding: 28px;
         }
 
-        .form-grid-alerts {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .alerts-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 20px;
+            padding: 22px 24px;
+            background: linear-gradient(135deg, #f1f5ff, #fef6f1);
+            border-radius: 16px;
+            border: 1px solid #e6e6f2;
+        }
+
+        .alerts-hero h2 {
+            margin: 0 0 6px 0;
+            color: #2c3e50;
+        }
+
+        .alerts-hero p {
+            margin: 0;
+            color: #5f6b7a;
+        }
+
+        .alerts-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin: 18px 0 24px;
+        }
+
+        .alert-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .filter-chip {
+            border: 1px solid #e1e6f0;
+            background: #fff;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #425466;
+            transition: all 0.2s;
+        }
+
+        .filter-chip.active {
+            background: #2575fc;
+            color: #fff;
+            border-color: #2575fc;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #edf0f7;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .stat-card.critical { border-left: 4px solid #e74c3c; }
+        .stat-card.warning { border-left: 4px solid #f39c12; }
+        .stat-card.info { border-left: 4px solid #3498db; }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .alerts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+        }
+
+        .alerts-panel {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #eee;
+            padding: 18px;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .panel-tag {
+            background: #f2f4ff;
+            color: #5a6cc5;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+
+        .alerts-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .alert-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #f0f0f0;
+            background: #fafbff;
+        }
+
+        .alert-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .alert-critical .alert-icon { background: #e74c3c; }
+        .alert-warning .alert-icon { background: #f39c12; }
+        .alert-info .alert-icon { background: #3498db; }
+
+        .alert-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .alert-meta {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .alert-desc {
+            font-size: 13px;
+            color: #4b5563;
+            margin-top: 6px;
+        }
+
+        .alert-actions {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .alert-action-btn {
+            border: none;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            background: #edf2ff;
+            color: #2f4ecb;
+        }
+
+        .alert-action-btn.critical {
+            background: #ffe8e6;
+            color: #c0392b;
+        }
+
+        .alert-empty {
+            padding: 16px;
+            color: #9aa3af;
+            text-align: center;
+            border: 1px dashed #e5e7eb;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        /* Promo Modal Styles */
+        #promo-modal-alert {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #promo-modal-alert.active {
+            display: flex;
+        }
+
+        .promo-modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .promo-modal-content h3 {
+            margin: 0 0 20px 0;
+            color: #1d2d44;
+            font-size: 18px;
         }
     </style>
 </head>
 
 <body>
     <div class="dashboard">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <i class="fas fa-fish"></i>
-                    <h2>Ferme Mokpokpo</h2>
-                </div>
-            </div>
-
-            <nav class="sidebar-menu">
-                <a href="catalogue.html" class="menu-item">
-                    <i class="fas fa-book-open menu-icon"></i>
-                    <span class="menu-text">Catalogue</span>
-                </a>
-                <a href="stock.html" class="menu-item">
-                    <i class="fas fa-boxes menu-icon"></i>
-                    <span class="menu-text">Gestion Stock</span>
-                </a>
-                <a href="alertes.html" class="menu-item active">
-                    <i class="fas fa-exclamation-triangle menu-icon"></i>
-                    <span class="menu-text">Alertes Stock</span>
-                </a>
-                <a href="notifications.html" class="menu-item">
-                    <i class="fas fa-bell menu-icon"></i>
-                    <span class="menu-text">Notifications</span>
-                </a>
-                <div class="menu-spacer"></div>
-                <a href="#" class="menu-item logout-btn" id="logout-btn">
-                    <i class="fas fa-sign-out-alt menu-icon"></i>
-                    <span class="menu-text">Déconnexion</span>
-                </a>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="topbar">
-                <div class="topbar-title">
-                    <h1><i class="fas fa-exclamation-triangle"></i> Gestion des Alertes</h1>
-                </div>
-                <div class="user-info">
-                    <span id="current-user">Gestionnaire Stock</span>
-                </div>
-            </header>
-
-            <div class="content-area">
-
-                <div class="alert-form-card">
-                    <h3><i class="fas fa-plus-circle"></i> Ajouter une Nouvelle Alerte</h3>
-                    <form id="form-ajout-alerte">
-                        <div class="form-grid-alerts">
-                            <div class="form-group">
-                                <label>Numéro d'alerte</label>
-                                <input type="text" id="alerte-num" class="form-control" placeholder="ALT-2026-00X"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Produit Concerné</label>
-                                <input type="text" id="alerte-produit" class="form-control" placeholder="Ex: Tilapia"
-                                    required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Type d'alerte</label>
-                                <select id="alerte-type" class="form-control" required>
-                                    <option value="Urgent">Urgent</option>
-                                    <option value="Rupture">Rupture de Stock</option>
-                                    <option value="Qualite">Problème Qualité</option>
-                                    <option value="Temperature">Problème Température</option>
-                                    <option value="Autre">Autre</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Niveau / Degré</label>
-                                <select id="alerte-niveau" class="form-control" required>
-                                    <option value="1">Faible</option>
-                                    <option value="2">Moyen</option>
-                                    <option value="3">Élevé</option>
-                                    <option value="4">Critique</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Date</label>
-                                <input type="date" id="alerte-date" class="form-control" required>
-                            </div>
+        <div id="sidebar-container"></div>
+        <div class="main-content">
+            <div id="topbar-container"></div>
+            <div class="content-area" id="content-area">
+                <main class="alerts-container">
+                    <div class="alerts-hero">
+                        <div>
+                            <h2><i class="fas fa-bell"></i> Alertes</h2>
+                            <p>Vue globale des alertes stock, IA et logistiques. Priorise ce qui est critique.</p>
                         </div>
-
-                        <div style="margin-top: 20px; text-align: right;">
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-save"></i> Enregistrer l'Alerte
+                        <div>
+                            <button class="btn btn-outline" id="refresh-alerts">
+                                <i class="fas fa-sync"></i> Actualiser
                             </button>
                         </div>
-                    </form>
-                </div>
-
-                <div class="stock-list-section">
-                    <h3><i class="fas fa-history"></i> Historique des Alertes</h3>
-                    <div class="table-container">
-                        <table class="stock-table">
-                            <thead>
-                                <tr>
-                                    <th>N° Alerte</th>
-                                    <th>Produit</th>
-                                    <th>Type</th>
-                                    <th>Niveau</th>
-                                    <th>Date</th>
-                                    <th>Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody id="alerts-history-body">
-                                <tr>
-                                    <td><strong>ALT-2026-001</strong></td>
-                                    <td>Crevettes</td>
-                                    <td><span class="badge badge-warning"
-                                            style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 4px;">Température</span>
-                                    </td>
-                                    <td>Élevé</td>
-                                    <td>12/01/2026</td>
-                                    <td><span class="badge"
-                                            style="background: #ffc107; color: #000; padding: 2px 8px; border-radius: 4px;">En
-                                            cours</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
-                </div>
+
+                    <div class="alerts-stats">
+                        <div class="stat-card critical">
+                            <div class="stat-value" id="stat-critical">0</div>
+                            <div class="stat-label">Critiques</div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-value" id="stat-warning">0</div>
+                            <div class="stat-label">Importantes</div>
+                        </div>
+                        <div class="stat-card info">
+                            <div class="stat-value" id="stat-info">0</div>
+                            <div class="stat-label">Informations</div>
+                        </div>
+                    </div>
+
+                    <div class="alert-filters" id="alert-filters">
+                        <button class="filter-chip active" data-filter="all">Toutes</button>
+                        <button class="filter-chip" data-filter="critical">Critique</button>
+                        <button class="filter-chip" data-filter="warning">Importante</button>
+                        <button class="filter-chip" data-filter="info">Info</button>
+                    </div>
+
+                    <div class="alerts-grid">
+                        <section class="alerts-panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-box"></i> Alertes Stock</h3>
+                                <span class="panel-tag">Peremption, seuil, surstock</span>
+                            </div>
+                            <div class="alerts-list" id="alerts-stock-list">
+                                <div class="alert-empty">Chargement...</div>
+                            </div>
+                        </section>
+
+                        <section class="alerts-panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-brain"></i> Alertes IA</h3>
+                                <span class="panel-tag">Rupture, baisse, hausse</span>
+                            </div>
+                            <div class="alerts-list" id="alerts-ia-list">
+                                <div class="alert-empty">Chargement...</div>
+                            </div>
+                        </section>
+
+                        <section class="alerts-panel">
+                            <div class="panel-header">
+                                <h3><i class="fas fa-truck"></i> Alertes Logistiques</h3>
+                                <span class="panel-tag">Retards, quantite manquante</span>
+                            </div>
+                            <div class="alerts-list" id="alerts-log-list">
+                                <div class="alert-empty">Chargement...</div>
+                            </div>
+                        </section>
+                    </div>
+                </main>
             </div>
-        </main>
+        </div>
+    </div>
+
+    <!-- Modal de Promotion pour Alertes -->
+    <div id="promo-modal-alert">
+        <div class="promo-modal-content">
+            <h3 id="promo-title">🔥 PROMOUVOIR UN PRODUIT</h3>
+            <div id="promo-content"></div>
+        </div>
     </div>
 
     <script src="js/config.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/role-shell.js"></script>
+    <script src="js/security.js"></script>
     <script>
+        let currentLevelFilter = 'all';
+        let cachedAlerts = { stock: [], ia: [], log: [] };
+
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialiser la date du jour
-            const dateInput = document.getElementById('alerte-date');
-            if (dateInput) dateInput.valueAsDate = new Date();
+            const refreshBtn = document.getElementById('refresh-alerts');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', loadAlertesDashboard);
+            }
 
-            // Gestion de la soumission du formulaire
-            document.getElementById('form-ajout-alerte').addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                // Récupération des valeurs
-                const num = document.getElementById('alerte-num').value;
-                const produit = document.getElementById('alerte-produit').value;
-                const type = document.getElementById('alerte-type').value;
-                const niveau = document.getElementById('alerte-niveau').options[document.getElementById('alerte-niveau').selectedIndex].text;
-                const dateRaw = document.getElementById('alerte-date').value;
-                const date = new Date(dateRaw).toLocaleDateString('fr-FR');
-
-                // Création de la ligne HTML
-                const newRow = `
-                    <tr>
-                        <td><strong>${num}</strong></td>
-                        <td>${produit}</td>
-                        <td><span class="badge badge-danger" style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 4px;">${type}</span></td>
-                        <td>${niveau}</td>
-                        <td>${date}</td>
-                        <td><span class="badge" style="background: #28a745; color: white; padding: 2px 8px; border-radius: 4px;">Nouveau</span></td>
-                    </tr>
-                `;
-
-                // Ajout au tableau (en haut de la liste)
-                const tbody = document.getElementById('alerts-history-body');
-                tbody.insertAdjacentHTML('afterbegin', newRow);
-
-                // Simulation envoi API
-                console.log("Alerte créée :", { num, produit, type, niveau, dateRaw });
-                alert("Alerte enregistrée avec succès !");
-
-                // Reset du formulaire (sauf la date si on veut enchainer)
-                this.reset();
-                if (dateInput) dateInput.valueAsDate = new Date();
-            });
-
-            // Gestion déconnexion
-            const logoutBtn = document.getElementById('logout-btn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    localStorage.clear();
-                    window.location.href = 'login.html';
+            const filterWrapper = document.getElementById('alert-filters');
+            if (filterWrapper) {
+                filterWrapper.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.filter-chip');
+                    if (!btn) return;
+                    currentLevelFilter = btn.dataset.filter || 'all';
+                    filterWrapper.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderAllAlerts();
                 });
             }
+
+            loadAlertesDashboard();
         });
+
+        async function loadAlertesDashboard() {
+            if (!window.api) return;
+
+            const stockList = document.getElementById('alerts-stock-list');
+            const iaList = document.getElementById('alerts-ia-list');
+            const logList = document.getElementById('alerts-log-list');
+
+            setLoading([stockList, iaList, logList]);
+
+            let stockAlerts = [];
+            let iaAlerts = [];
+            let logAlerts = [];
+
+            try {
+                const results = await Promise.allSettled([
+                    api.request('/api/previsions/tous_resumés/'),
+                    api.request('/api/previsions/risques_peremption/'),
+                    api.request('/api/previsions/predictions_ml/'),
+                    api.getDeliveries()
+                ]);
+
+                const resumes = results[0].status === 'fulfilled' ? results[0].value : [];
+                const peremptions = results[1].status === 'fulfilled' ? results[1].value : [];
+                const iaPreds = results[2].status === 'fulfilled' ? results[2].value : [];
+                const deliveries = results[3].status === 'fulfilled' ? normalizeList(results[3].value) : [];
+
+                stockAlerts = buildStockAlerts(resumes || [], peremptions || []);
+                iaAlerts = buildIaAlerts(iaPreds || [], resumes || []);
+                logAlerts = buildLogisticAlerts(deliveries || []);
+
+            } catch (e) {
+                console.error(e);
+            }
+
+            cachedAlerts = { stock: stockAlerts, ia: iaAlerts, log: logAlerts };
+            renderAllAlerts();
+            updateStats([...stockAlerts, ...iaAlerts, ...logAlerts]);
+        }
+
+        function renderAllAlerts() {
+            const stockList = document.getElementById('alerts-stock-list');
+            const iaList = document.getElementById('alerts-ia-list');
+            const logList = document.getElementById('alerts-log-list');
+
+            renderAlerts(stockList, cachedAlerts.stock);
+            renderAlerts(iaList, cachedAlerts.ia);
+            renderAlerts(logList, cachedAlerts.log);
+        }
+
+        function buildStockAlerts(resumes, peremptions) {
+            const alerts = [];
+            // Les alertes de rupture sont maintenant dans buildIaAlerts
+            resumes.forEach(r => {
+                if (r.risque_surstock >= 60) {
+                    const level = r.risque_surstock >= 85 ? 'critical' : 'warning';
+                    alerts.push(makeAlert(level, 'Surstock', `${r.produit_nom} - risque ${Math.round(r.risque_surstock)}%`, 'Stock', 'fa-boxes', {
+                        produitId: r.produit_id,
+                        stockActuel: r.stock_actuel,
+                        risqueSurstock: r.risque_surstock,
+                        actions: [{ label: 'Promouvoir', action: 'promouvoir' }]
+                    }));
+                }
+            });
+
+            peremptions.forEach(p => {
+                const jours = p.jours_expiration ?? 0;
+                const level = jours <= 7 ? 'critical' : 'warning';
+                alerts.push(makeAlert(level, 'Peremption proche', `${p.produit_nom} - expire dans ${jours} jours`, 'Stock', 'fa-hourglass-half', {
+                    produitId: p.produit_id,
+                    actions: [{ label: 'Promouvoir', action: 'promouvoir' }]
+                }));
+            });
+
+            return alerts;
+        }
+
+        function buildIaAlerts(predictions, resumes) {
+            const alerts = [];
+            
+            // Ajouter les alertes de rupture depuis resumes (déplacées depuis buildStockAlerts)
+            resumes.forEach(r => {
+                if (r.jours_rupture >= 0 && r.jours_rupture <= 7) {
+                    const level = r.jours_rupture <= 3 ? 'critical' : 'warning';
+                    const quantiteReco = r.jours_rupture >= 0 ? Math.round(r.moyenne_quotidienne * Math.max(1, r.jours_rupture)) : Math.round(r.moyenne_quotidienne * 14);
+                    alerts.push(makeAlert(level, 'Seuil critique', `${r.produit_nom} - rupture probable sous ${r.jours_rupture} jours`, 'IA', 'fa-exclamation-triangle', {
+                        produitId: r.produit_id,
+                        produitNom: r.produit_nom,
+                        quantiteRecommandee: quantiteReco,
+                        prixUnitaire: r.prix_unitaire,
+                        actions: [{ label: 'Commander', action: 'commander' }]
+                    }));
+                }
+            });
+
+            // Ajouter les alertes de tendance depuis resumes
+            resumes.forEach(r => {
+                if (!Array.isArray(r.alertes)) return;
+
+                r.alertes.forEach(a => {
+                    if (a.type === 'baisse_demande') {
+                        alerts.push(makeAlert('warning', 'Baisse de demande', `${r.produit_nom} - demande en baisse`, 'IA', 'fa-chart-line', {
+                            produitId: r.produit_id,
+                            produitNom: r.produit_nom,
+                            actions: [{ label: 'Promouvoir', action: 'promouvoir' }]
+                        }));
+                    }
+
+                    if (a.type === 'croissance_demande') {
+                        const quantiteReco = r.moyenne_quotidienne ? Math.round(r.moyenne_quotidienne * 14) : 50;
+                        alerts.push(makeAlert('info', 'Hausse de demande', `${r.produit_nom} - demande en hausse`, 'IA', 'fa-chart-line', {
+                            produitId: r.produit_id,
+                            produitNom: r.produit_nom,
+                            quantiteRecommandee: quantiteReco,
+                            prixUnitaire: r.prix_unitaire,
+                            actions: [{ label: 'Commander', action: 'commander' }]
+                        }));
+                    }
+                });
+            });
+            
+            // Alertes IA basées sur predictions ML
+            predictions.forEach(p => {
+                if (p.score_rupture >= 60) {
+                    const level = p.score_rupture >= 75 ? 'critical' : 'warning';
+                    // Trouver les données du produit dans resumes pour avoir prix et quantité
+                    const resume = resumes.find(r => r.produit_id === p.produit_id) || {};
+                    const quantiteReco = resume.moyenne_quotidienne ? Math.round(resume.moyenne_quotidienne * 14) : 100;
+                    alerts.push(makeAlert(level, 'Rupture probable', `${p.produit_nom} - score rupture ${Math.round(p.score_rupture)}%`, 'IA', 'fa-brain', {
+                        produitId: p.produit_id,
+                        produitNom: p.produit_nom,
+                        quantiteRecommandee: quantiteReco,
+                        prixUnitaire: resume.prix_unitaire || p.prix_unitaire,
+                        actions: [{ label: 'Commander', action: 'commander' }]
+                    }));
+                }
+                if (p.trend_ml === 'decroissant' && p.volatility >= 1.2) {
+                    alerts.push(makeAlert('warning', 'Baisse brutale de demande', `${p.produit_nom} - tendance baisse`, 'IA', 'fa-chart-line', {
+                        produitId: p.produit_id,
+                        actions: [{ label: 'Promouvoir', action: 'promouvoir' }]
+                    }));
+                }
+                if (p.trend_ml === 'croissant' && p.volatility >= 1.2) {
+                    const resume = resumes.find(r => r.produit_id === p.produit_id) || {};
+                    const quantiteReco = resume.moyenne_quotidienne ? Math.round(resume.moyenne_quotidienne * 14) : 100;
+                    alerts.push(makeAlert('warning', 'Forte hausse inattendue', `${p.produit_nom} - demande en hausse`, 'IA', 'fa-chart-line', {
+                        produitId: p.produit_id,
+                        produitNom: p.produit_nom,
+                        quantiteRecommandee: quantiteReco,
+                        prixUnitaire: resume.prix_unitaire || p.prix_unitaire,
+                        actions: [{ label: 'Commander', action: 'commander' }]
+                    }));
+                }
+            });
+            return alerts;
+        }
+
+        function buildLogisticAlerts(deliveries) {
+            const alerts = [];
+            const today = new Date();
+
+            if (!Array.isArray(deliveries)) {
+                return alerts;
+            }
+
+            deliveries.forEach(d => {
+                const statut = (d.statut_livraison || d.statut || d.status || '').toLowerCase();
+                const datePrevue = parseDate(d.date_livraison_prevue || d.date_prevue || d.date_prevision);
+                if (datePrevue && statut && statut !== 'livree' && statut !== 'livreee' && datePrevue < today) {
+                    const daysLate = Math.max(1, Math.ceil((today - datePrevue) / 86400000));
+                    const level = daysLate >= 3 ? 'critical' : 'warning';
+                    alerts.push(makeAlert(level, 'Livraison en retard', `Livraison #${d.id_livraison || d.id} en retard de ${daysLate} jours`, 'Logistique', 'fa-truck', {
+                        livraisonId: d.id_livraison || d.id,
+                        actions: [{ label: 'Ouvrir', action: 'ouvrir-livraison' }]
+                    }));
+                }
+
+                const qPrevue = Number(d.quantite_prevue || d.quantite || d.qte_prevue || 0);
+                const qLivree = Number(d.quantite_livree || d.qte_livree || 0);
+                if (qPrevue > 0 && qLivree > 0 && qLivree < qPrevue) {
+                    alerts.push(makeAlert('warning', 'Quantite manquante', `Livraison #${d.id_livraison || d.id} - ${qLivree}/${qPrevue}`, 'Logistique', 'fa-box-open', {
+                        livraisonId: d.id_livraison || d.id,
+                        actions: [{ label: 'Ouvrir', action: 'ouvrir-livraison' }]
+                    }));
+                }
+            });
+
+            return alerts;
+        }
+
+        function makeAlert(level, title, description, source, icon, meta = {}) {
+            return {
+                level,
+                title,
+                description,
+                source,
+                icon,
+                produitId: meta.produitId,
+                produitNom: meta.produitNom,
+                quantiteRecommandee: meta.quantiteRecommandee,
+                prixUnitaire: meta.prixUnitaire,
+                livraisonId: meta.livraisonId,
+                stockActuel: meta.stockActuel,
+                risqueSurstock: meta.risqueSurstock,
+                actions: meta.actions || []
+            };
+        }
+
+        function renderAlerts(container, alerts) {
+            if (!container) return;
+            if (!alerts || alerts.length === 0) {
+                container.innerHTML = '<div class="alert-empty">Aucune alerte pour le moment</div>';
+                return;
+            }
+
+            const filtered = filterAlerts(alerts);
+
+            if (!filtered || filtered.length === 0) {
+                container.innerHTML = '<div class="alert-empty">Aucune alerte pour le moment</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.slice(0, 8).map(a => `
+                <div class="alert-row alert-${a.level}">
+                    <div class="alert-icon"><i class="fas ${a.icon}"></i></div>
+                    <div>
+                        <div class="alert-title">${a.title}</div>
+                        <div class="alert-meta">${a.source}</div>
+                        <div class="alert-desc">${a.description}</div>
+                        ${renderActions(a)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterAlerts(alerts) {
+            if (!alerts) return [];
+            if (currentLevelFilter === 'all') return alerts;
+            return alerts.filter(a => a.level === currentLevelFilter);
+        }
+
+        function renderActions(alert) {
+            if (!alert.actions || alert.actions.length === 0) return '';
+            const buttons = alert.actions.map(action => {
+                return `<button class="alert-action-btn ${alert.level}" data-action="${action.action}" data-produit="${alert.produitId || ''}" data-produit-nom="${alert.produitNom || ''}" data-quantite="${alert.quantiteRecommandee || ''}" data-prix="${alert.prixUnitaire || ''}" data-livraison="${alert.livraisonId || ''}">${action.label}</button>`;
+            }).join('');
+            return `<div class="alert-actions">${buttons}</div>`;
+        }
+
+        function updateStats(alerts) {
+            const critical = alerts.filter(a => a.level === 'critical').length;
+            const warning = alerts.filter(a => a.level === 'warning').length;
+            const info = alerts.filter(a => a.level === 'info').length;
+
+            document.getElementById('stat-critical').textContent = critical;
+            document.getElementById('stat-warning').textContent = warning;
+            document.getElementById('stat-info').textContent = info;
+        }
+
+        // Navigation vers approvisionnements avec produit pré-sélectionné (comme dans previsions.js)
+        function ouvrirApprovisionnement(produitId, produitNom, quantiteReco, prixUnitaire) {
+            // Stocker les données pré-sélectionnées dans sessionStorage
+            const approvData = {
+                produit_id: produitId,
+                produit_nom: produitNom,
+                quantite_recommandee: Math.round(quantiteReco),
+                prix_unitaire: prixUnitaire
+            };
+            
+            sessionStorage.setItem('approvPreselection', JSON.stringify(approvData));
+            
+            // Rediriger vers la page approvisionnements
+            window.location.href = 'approvisionnements.html?edit=new';
+        }
+
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.alert-action-btn');
+            if (!btn) return;
+            const action = btn.dataset.action;
+            const produitId = btn.dataset.produit;
+            const produitNom = btn.dataset.produitNom;
+            const quantite = btn.dataset.quantite;
+            const prix = btn.dataset.prix;
+            const livraisonId = btn.dataset.livraison;
+
+            if (action === 'commander' && produitId) {
+                ouvrirApprovisionnement(produitId, produitNom, quantite || 100, prix || null);
+                return;
+            }
+
+            if (action === 'promouvoir' && produitId) {
+                openPromoModal(produitId, btn);
+                return;
+            }
+
+            if (action === 'ouvrir-livraison' && livraisonId) {
+                window.location.href = `livraisons.html?action=detail&livraison=${livraisonId}`;
+            }
+        });
+
+        function setLoading(containers) {
+            containers.forEach(c => {
+                if (c) c.innerHTML = '<div class="alert-empty">Chargement...</div>';
+            });
+        }
+
+        function parseDate(value) {
+            if (!value) return null;
+            const d = new Date(value);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function normalizeList(value) {
+            if (Array.isArray(value)) return value;
+            if (value && Array.isArray(value.results)) return value.results;
+            return [];
+        }
+        // État pour la promo modal
+        let promoModalState = {
+            currentProduitId: null,
+            currentAlert: null
+        };
+
+        function getUserRoleSafe() {
+            const rawRole = localStorage.getItem('userRole') || localStorage.getItem('role');
+            if (rawRole) return String(rawRole).toLowerCase();
+            try {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                if (currentUser.role) return String(currentUser.role).toLowerCase();
+            } catch {}
+            try {
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                if (userData.role) return String(userData.role).toLowerCase();
+            } catch {}
+            return '';
+        }
+
+        async function openPromoModal(produitId, btn) {
+            if (!produitId) return;
+            promoModalState.currentProduitId = produitId;
+            
+            // Trouver le produit dans le cache
+            const resume = cachedAlerts.stock && cachedAlerts.stock.length > 0 
+                ? cachedAlerts.stock.find(alert => alert.produitId == produitId)
+                : null;
+            
+            if (!resume) {
+                alert('Produit not found in cache');
+                return;
+            }
+
+            const modal = document.getElementById('promo-modal-alert');
+            const title = document.getElementById('promo-title');
+            const content = document.getElementById('promo-content');
+
+            title.textContent = `🔥 PROMOUVOIR: ${resume.description || 'Produit #' + produitId}`;
+            
+            let product = null;
+            try {
+                if (window.api) {
+                    product = await api.request(`/api/produits/${produitId}/`);
+                }
+            } catch (e) {
+                console.warn('Erreur chargement produit:', e);
+            }
+
+            const stockActuel = Number.isFinite(Number(product?.stock_disponible))
+                ? Number(product.stock_disponible)
+                : Number(resume.stockActuel || 0);
+            const prixNormal = Number(product?.prix_unitaire || 0);
+            const risqueSurstock = Number.isFinite(Number(resume.risqueSurstock))
+                ? Number(resume.risqueSurstock)
+                : null;
+
+            promoModalState.productPrice = prixNormal;
+            promoModalState.stockActuel = stockActuel;
+            promoModalState.risqueSurstock = risqueSurstock;
+
+            content.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 15px 0; color: #2c3e50; text-transform: uppercase; letter-spacing: 0.5px;">📊 État du stock</h4>
+                    <ul style="margin: 0; padding-left: 20px; list-style: none;">
+                        <li style="padding: 5px 0; color: #555;">Stock actuel: <strong>${stockActuel.toFixed(1)} kg</strong></li>
+                        <li style="padding: 5px 0; color: #555;">Risque surstock: <strong>${risqueSurstock == null ? 'N/A' : Math.round(risqueSurstock) + '%'}</strong></li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 15px 0; color: #2c3e50; text-transform: uppercase; letter-spacing: 0.5px;">💰 Prix & Réduction</h4>
+                    <div style="background: #f5f5f5; padding: 12px; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Prix normal:</span>
+                            <strong style="color: #666;">${prixNormal ? prixNormal.toLocaleString('fr-FR') + ' FCFA/kg' : 'N/A'}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
+                            <label for="promo-reduction-input">Réduction:</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="promo-reduction-input" min="5" max="50" value="15" 
+                                    style="width: 150px; cursor: pointer;" onchange="updatePromoPreview()">
+                                <span id="reduction-value" style="min-width: 40px; font-weight: 700; color: #ff9800;">15%</span>
+                            </div>
+                        </div>
+                        <div style="border-top: 1px solid #ddd; padding-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 600;">→ Nouveau prix:</span>
+                            <span id="nouveau-prix" style="font-size: 18px; font-weight: 700; color: #4caf50;">${prixNormal ? (prixNormal * 0.85).toLocaleString('fr-FR') + ' FCFA' : 'N/A'}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin: 0 0 15px 0; color: #2c3e50; text-transform: uppercase; letter-spacing: 0.5px;">⏰ Durée de la promo</h4>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label for="promo-duration-input">Valable pendant:</label>
+                        <input type="number" id="promo-duration-input" min="1" max="30" value="3" 
+                            style="width: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <span style="color: #666;">jours</span>
+                    </div>
+                    <div id="date-preview" style="margin-top: 8px; font-size: 12px; color: #999;">
+                        (Du 22/02 au 25/02/2026)
+                    </div>
+                </div>
+
+                <div id="promo-feedback" style="margin-top: 10px; font-size: 13px; color: #2c3e50; font-weight: 600;"></div>
+                <div style="display: flex; gap: 10px; margin-top: 25px;">
+                    <button onclick="closePromoModal()" style="flex: 1; padding: 10px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-weight: 600; color: #2c3e50;">
+                        ANNULER
+                    </button>
+                    <button onclick="applyPromotion()" style="flex: 1; padding: 10px; background: linear-gradient(135deg, #ff9800, #f39c12); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                        APPLIQUER
+                    </button>
+                </div>
+            `;
+
+            modal.classList.add('active');
+            updatePromoPreview();
+        }
+
+        function updatePromoPreview() {
+            const reduction = parseInt(document.getElementById('promo-reduction-input').value) || 15;
+            document.getElementById('reduction-value').textContent = reduction + '%';
+
+            const prixNormal = Number(promoModalState.productPrice || 0);
+            const nouveauPrix = prixNormal * (1 - reduction / 100);
+            document.getElementById('nouveau-prix').textContent = prixNormal
+                ? nouveauPrix.toLocaleString('fr-FR') + ' FCFA'
+                : 'N/A';
+
+            const duree = parseInt(document.getElementById('promo-duration-input').value) || 3;
+            const dateDebut = new Date();
+            const dateFin = new Date(dateDebut.getTime() + duree * 24 * 60 * 60 * 1000);
+            
+            const format = (d) => d.toLocaleDateString('fr-FR');
+            document.getElementById('date-preview').textContent = 
+                `(Du ${format(dateDebut)} au ${format(dateFin)})`;
+        }
+
+        function schedulePromoEndNotification(produitId, produitNom, dateFin) {
+            if (!dateFin || isNaN(dateFin.getTime())) return;
+            const delay = dateFin.getTime() - Date.now();
+            if (delay <= 0) return;
+            const maxDelay = 2147483647;
+            const safeDelay = Math.min(delay, maxDelay);
+            setTimeout(() => {
+                alert(`⏰ Promo terminee pour ${produitNom || 'Produit #' + produitId}.`);
+            }, safeDelay);
+        }
+
+        function applyPromotion() {
+            const reduction = parseInt(document.getElementById('promo-reduction-input').value) || 15;
+            const duree = parseInt(document.getElementById('promo-duration-input').value) || 3;
+            const produitId = promoModalState.currentProduitId;
+            const feedback = document.getElementById('promo-feedback');
+            const role = getUserRoleSafe();
+
+            if (!produitId) {
+                alert('Erreur: Produit non sélectionné');
+                return;
+            }
+
+            if (!role.includes('admin')) {
+                alert('Action reservee a l\'admin.');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            const accessToken = localStorage.getItem('access_token');
+            const authHeader = token ? `Token ${token}` : (accessToken ? `Bearer ${accessToken}` : null);
+            const headers = { 'Content-Type': 'application/json' };
+            if (authHeader) headers['Authorization'] = authHeader;
+
+            const apiInstance = window.api || null;
+            const dateFin = new Date();
+            dateFin.setDate(dateFin.getDate() + duree);
+
+            Promise.all([
+                apiInstance ? apiInstance.request('/api/lots/?produit=' + produitId) : fetch('/api/lots/?produit=' + produitId, { headers }).then(r => r.json()),
+                apiInstance ? apiInstance.request(`/api/produits/${produitId}/`) : fetch(`/api/produits/${produitId}/`, { headers }).then(r => r.json())
+            ])
+                .then(([lots, product]) => {
+                    const list = Array.isArray(lots) ? lots : (lots.results || []);
+                    const productLots = list.filter(lot => String(lot.produit) === String(produitId));
+                    if (productLots.length === 0) {
+                        throw new Error('Aucun lot trouvé pour ce produit');
+                    }
+
+                    const prixNormal = Number(product?.prix_unitaire || promoModalState.productPrice || 0);
+                    if (!prixNormal) {
+                        throw new Error('Prix du produit introuvable');
+                    }
+
+                    const produitNom = product?.nom_produit || null;
+
+                    if (apiInstance) {
+                        return Promise.all(productLots.map(lot =>
+                            apiInstance.request(`/api/lots/${lot.id_lot}/`, {
+                                method: 'PATCH',
+                                body: JSON.stringify({
+                                    promo_active: true,
+                                    promo_reduction: reduction,
+                                    promo_date_fin: dateFin.toISOString(),
+                                    prix_reduit_affiche: prixNormal * (1 - reduction / 100)
+                                })
+                            })
+                        ));
+                    }
+
+                    return Promise.all(productLots.map(lot =>
+                        fetch(`/api/lots/${lot.id_lot}/`, {
+                            method: 'PATCH',
+                            headers,
+                            body: JSON.stringify({
+                                promo_active: true,
+                                promo_reduction: reduction,
+                                promo_date_fin: dateFin.toISOString(),
+                                prix_reduit_affiche: prixNormal * (1 - reduction / 100)
+                            })
+                        }).then(r => r.json())
+                    ));
+                })
+                .then(data => {
+                    console.log('Promo appliquée:', data);
+                    if (feedback) {
+                        feedback.textContent = `✅ Promo appliquee: -${reduction}% pour ${duree} jours.`;
+                    }
+                    alert(`✅ Promo demarree: -${reduction}% pour ${duree} jours.`);
+                    schedulePromoEndNotification(produitId, null, dateFin);
+                    closePromoModal();
+                    loadAlertesDashboard();
+                })
+                .catch(err => {
+                    console.error('Erreur:', err);
+                    if (feedback) {
+                        feedback.textContent = `❌ ${err.message || 'Erreur lors de l\'application de la promo'}`;
+                    } else {
+                        alert('❌ Erreur lors de l\'application de la promo');
+                    }
+                });
+        }
+
+        function closePromoModal() {
+            const modal = document.getElementById('promo-modal-alert');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
     </script>
 </body>
 
